@@ -33,6 +33,10 @@
 #include "PakIO.h"
 #include "GBCart.h"
 
+#ifdef __GNUC__
+#define min std::min
+#endif // #ifdef __GNUC__
+
 // ProtoTypes
 BYTE AddressCRC( const unsigned char * Address );
 BYTE DataCRC( const unsigned char * Data, const int iLength );

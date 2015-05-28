@@ -37,11 +37,17 @@
 #define _WIN32_IE 0x0300
 #endif // #ifndef _WIN32_IE
 
+// This just breaks things
+/*
 #ifndef _const unsigned char *_DEFINED
 #define _const unsigned char *_DEFINED
 typedef const unsigned char *const unsigned char *;
 #endif // #ifndef _const unsigned char *_DEFINED
+*/
 
+// Some mingw packages don't have wscanf_s or sscanf_s
+#define wscanf_s wscanf
+#define sscanf_s sscanf
 #endif // #ifdef __GNUC__
 
 	// Our default buffer size for TCHAR arrays (resources get loaded through here)

@@ -21,6 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef __COMPILING_FILEACCESS_C__
+#define __COMPILING_FILEACCESS_C__
+#endif
+
 #include "commonIncludes.h"
 #include <windows.h>
 #include <CommDlg.h>
@@ -1204,6 +1208,10 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 	oFile.lpfnHook			= NULL;
 	oFile.lpTemplateName	= NULL;
 
+#if __GNUC__
+	ImportGetFNameFuncs();
+#endif
+
 	if( fSave )
 	{
 		if( !GetSaveFileName( &oFile ))
@@ -1692,3 +1700,29 @@ unsigned long djbHash(const char *str)
 
     return hash;
 }
+
+#if __GNUC__
+
+void ImportGetFNameFuncs()
+{
+	if (GetFNameFuncsImported)
+	{
+		return;
+	}
+
+	comctl32_2 = LoadLibrary(_T("comctl32.dll"));
+#ifdef UNICODE
+	GetOpenFName = (fGetOpenFileName)GetProcAddress(comctl32_2, "GetOpenFileNameW");
+	GetSaveFName = (fGetSaveFileName)GetProcAddress(comctl32_2, "GetSaveFileNameW");
+#else
+	GetOpenFName = (fGetOpenFileName)GetProcAddress(comctl32_2, "GetOpenFileNameA");
+	GetSaveFName = (fGetSaveFileName)GetProcAddress(comctl32_2, "GetSaveFileNameA");
+#endif
+	GetFNameFuncsImported = TRUE;
+}
+
+#endif
+
+#ifdef __COMPILING_FILEACCESS_C__
+#undef __COMPILING_FILEACCESS_C__
+#endif

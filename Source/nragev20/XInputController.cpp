@@ -19,6 +19,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef __COMPILING_XINPUTCONTROLLER__
+#define __COMPILING_XINPUTCONTROLLER__
+#endif
+
 #include "XInputController.h"
 #include "FileAccess.h"
 #include <wchar.h>
@@ -43,16 +47,28 @@ BOOL IsXInputDevice( const GUID* pGuidProductFromDirectInput )
     UINT                    iDevice        = 0;
     VARIANT                 var;
     HRESULT                 hr;
+	CLSID					CLSID_WbemLocator = {
+		0x4590f811, 0x1d3a, 0x11d0,
+		{0x89, 0x1f,0x00, 0xaa, 0x00, 0x4b, 0x2e, 0x24}
+	};
+	IID						IID_IWbemLocator = {
+		0xdc12a687, 0x737f, 0x11cf,
+		{0x88,0x4d,0x00,0xaa,0x00,0x4b,0x2e,0x24}
+	};
+
+#if __GNUC__
+	ImportCOMFuncs();
+#endif
 
     // CoInit if needed
     hr = CoInitialize(NULL);
     bool bCleanupCOM = SUCCEEDED(hr);
 
     // Create WMI
-    hr = CoCreateInstance( __uuidof(WbemLocator),
+    hr = CoCreateInstance( CLSID_WbemLocator,
                            NULL,
                            CLSCTX_INPROC_SERVER,
-                           __uuidof(IWbemLocator),
+                           IID_IWbemLocator,
                            (LPVOID*) &pIWbemLocator);
     if( FAILED(hr) || pIWbemLocator == NULL )
         goto LCleanup;
@@ -816,3 +832,32 @@ void LoadXInputConfigFromFile( FILE *file, LPXCONTROLLER gController )
 
 	gController->bConfigured = c > 20 ;
 }
+
+#if __GNUC__
+
+void ImportCOMFuncs()
+{
+	if(COMFuncsImported)
+	{
+		return;
+	}
+	ole32		= LoadLibrary( _T( "ole32.dll" ));
+	oleaut32	= LoadLibrary( _T( "oleaut32.dll" ));
+
+    CoInit              = (fCoInitialize)       GetProcAddress(ole32,       "CoInitialize");
+    CoCreateInst        = (fCoCreateInstance)   GetProcAddress(ole32,       "CoCreateInstance");
+	CoSetPrxyBlnkt      = (fCoSetProxyBlanket)  GetProcAddress(ole32,       "CoSetProxyBlanket");
+    CoUninit            = (fCoUninitialize)     GetProcAddress(ole32,       "CoUninitialize");
+
+	OLEmallocStr        = (fSysAllocString)     GetProcAddress(oleaut32,    "SysAllocString");
+	OLEfreeStr          = (fSysFreeString)      GetProcAddress(oleaut32,    "SysFreeString");
+	VarClear            = (fVariantClear)       GetProcAddress(oleaut32,    "VariantClear");
+
+	COMFuncsImported = TRUE;
+}
+
+#endif
+
+#ifdef __COMPILING_XINPUTCONTROLLER__
+#undef __COMPILING_XINPUTCONTROLLER__
+#endif

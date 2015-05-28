@@ -32,6 +32,12 @@
 #include <math.h>
 #include <CGuid.h>
 
+#ifdef __GNUC__
+#include <algorithm>
+#define min std::min
+#define max std::max
+#endif // #ifdef __GNUC__
+
 // ProtoTypes //
 HRESULT AcquireDevice( LPDIRECTINPUTDEVICE8 lpDirectInputDevice );
 
@@ -377,7 +383,7 @@ bool GetNControllerInput ( const int indexController, LPDWORD pdwData )
 				{
 					if( pcController->wAxeBuffer[i] < MAXAXISVALUE )
 					{
-						l_Value = pcController->wAxeBuffer[i] = min(( pcController->wAxeBuffer[i] + N64DIVIDER*3), MAXAXISVALUE );
+						l_Value = pcController->wAxeBuffer[i] = min(( pcController->wAxeBuffer[i] + N64DIVIDER*3), (long)MAXAXISVALUE );
 					}
 					else
 						l_Value = MAXAXISVALUE;
@@ -386,7 +392,7 @@ bool GetNControllerInput ( const int indexController, LPDWORD pdwData )
 				{
 					if( pcController->wAxeBuffer[i] < MAXAXISVALUE )
 					{
-						l_Value = pcController->wAxeBuffer[i] = min(( pcController->wAxeBuffer[i] * 2 + N64DIVIDER*5 ), MAXAXISVALUE );
+						l_Value = pcController->wAxeBuffer[i] = min(( pcController->wAxeBuffer[i] * 2 + N64DIVIDER*5 ), (long)MAXAXISVALUE );
 					}
 					else
 						l_Value = MAXAXISVALUE;
@@ -430,7 +436,7 @@ bool GetNControllerInput ( const int indexController, LPDWORD pdwData )
 			// wAxeBuffer is negative for axes 1 and 2 if buffer remains, else zero
 
 			if(( pcController->bMouseMoveX == MM_ABS && i < 2 ) || ( pcController->bMouseMoveY == MM_ABS &&  i > 1 ))
-				pcController->wAxeBuffer[i] = min( max( MINAXISVALUE, pcController->wAxeBuffer[i]) , MAXAXISVALUE);
+				pcController->wAxeBuffer[i] = min( max( (long)MINAXISVALUE, pcController->wAxeBuffer[i]) , (long)MAXAXISVALUE);
 			else if (( pcController->bMouseMoveX == MM_BUFF && i < 2 ) || ( pcController->bMouseMoveY == MM_BUFF &&  i > 1 ))
 				pcController->wAxeBuffer[i] = pcController->wAxeBuffer[i] * MOUSEBUFFERDECAY / 100;
 			else // "deadpan" mouse
@@ -542,14 +548,14 @@ bool GetNControllerInput ( const int indexController, LPDWORD pdwData )
 		double dRel = MAXAXISVALUE / dRangeDiagonal;
 
 		*pdwData = MAKELONG(w_Buttons,
-							MAKEWORD(	(BYTE)(min( max( MINAXISVALUE, (long)(lAxisValueX * d_ModifierX * dRel )), MAXAXISVALUE) / N64DIVIDER ),
-										(BYTE)(min( max( MINAXISVALUE, (long)(lAxisValueY * d_ModifierY * dRel )), MAXAXISVALUE) / N64DIVIDER )));
+							MAKEWORD(	(BYTE)(min( max( (long)MINAXISVALUE, (long)(lAxisValueX * d_ModifierX * dRel )), (long)MAXAXISVALUE) / N64DIVIDER ),
+										(BYTE)(min( max( (long)MINAXISVALUE, (long)(lAxisValueY * d_ModifierY * dRel )), (long)MAXAXISVALUE) / N64DIVIDER )));
 	}
 	else
 	{
 		*pdwData = MAKELONG(w_Buttons,
-							MAKEWORD(	(BYTE)(min( max( MINAXISVALUE, (long)(lAxisValueX * d_ModifierX )), MAXAXISVALUE) / N64DIVIDER ),
-										(BYTE)(min( max( MINAXISVALUE, (long)(lAxisValueY * d_ModifierY )), MAXAXISVALUE) / N64DIVIDER )));
+							MAKEWORD(	(BYTE)(min( max( (long)MINAXISVALUE, (long)(lAxisValueX * d_ModifierX )), (long)MAXAXISVALUE) / N64DIVIDER ),
+										(BYTE)(min( max( (long)MINAXISVALUE, (long)(lAxisValueY * d_ModifierY )), (long)MAXAXISVALUE) / N64DIVIDER )));
 	}
 
 	return true;
@@ -872,7 +878,7 @@ bool CreateEffectHandle( HWND hWnd, LPDIRECTINPUTDEVICE8 lpDirectInputDevice, LP
 
 	if( nAxes == 0 )
 		return false;
-	nAxes = min( nAxes, 2 );
+	nAxes = min( (int)nAxes, 2 );
 
 
 	// Must be unaquired for setting stuff like Co-op Level

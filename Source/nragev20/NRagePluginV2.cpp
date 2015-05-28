@@ -21,6 +21,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef __COMPILING_NRAGEPLUGINV2_C__
+#define __COMPILING_NRAGEPLUGINV2_C__
+#endif
+
 #include "commonIncludes.h"
 #include <windows.h>
 #include <Commctrl.h>
@@ -70,6 +74,9 @@ LPDIRECTINPUTDEVICE8 g_apFFDevice[4] = { NULL, NULL, NULL, NULL };					// added 
 LPDIRECTINPUTEFFECT  g_apdiEffect[4] = { NULL, NULL, NULL, NULL };					// array of handles for FF-Effects, one for each controller
 TCHAR g_pszThreadMessage[DEFAULT_BUFFER] = _T("");
 
+#ifdef __GNUC__
+extern "C"
+#endif
 BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
 	switch ( ul_reason_for_call )
@@ -78,7 +85,7 @@ BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD  ul_reason_for_call, LPVOID lpRe
 		DisableThreadLibraryCalls( hModule );
 		if( !prepareHeap())
 			return FALSE;
-		DebugWriteA("*** DLL Attach (" VER_FILE_VERSION_STR "-Debugbuild | built on " __DATE__ " at " __TIME__")\n");
+		DebugWriteA("*** DLL Attach (" VER_FILE_VERSION_STR "-Debugbuild | built on " __DATE__ " at " __TIME__")\n", hModule);
 		ZeroMemory( &g_strEmuInfo, sizeof(g_strEmuInfo) );
 		ZeroMemory( g_devList, sizeof(g_devList) );
 		ZeroMemory( &g_sysMouse, sizeof(g_sysMouse) );
@@ -150,10 +157,18 @@ BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD  ul_reason_for_call, LPVOID lpRe
 EXPORT void CALL GetDllInfo ( PLUGIN_INFO* PluginInfo )
 {
 	DebugWriteA("CALLED: GetDllInfo\n");
+#ifdef __GNUC__
 #ifdef _DEBUG
-	sprintf(PluginInfo->Name,"N-Rage For PJ64 (Debug): %s",VER_FILE_VERSION_STR);
+	sprintf(PluginInfo->Name, "N-Rage For PJ64 (Mingw Debug): %s", VER_FILE_VERSION_STR);
 #else
-	sprintf(PluginInfo->Name,"N-Rage For PJ64: %s",VER_FILE_VERSION_STR);
+	sprintf(PluginInfo->Name, "N-Rage For PJ64 (Mingw): %s", VER_FILE_VERSION_STR);
+#endif
+#else
+#ifdef _DEBUG
+	sprintf(PluginInfo->Name,"N-Rage For PJ64 (MSVC Debug): %s",VER_FILE_VERSION_STR);
+#else
+	sprintf(PluginInfo->Name,"N-Rage For PJ64 (MSVC): %s",VER_FILE_VERSION_STR);
+#endif
 #endif
 	PluginInfo->Type = PLUGIN_TYPE_CONTROLLER;
 	PluginInfo->Version = 0x0101;
@@ -200,6 +215,9 @@ EXPORT void CALL DllAbout ( HWND hParent )
 EXPORT void CALL DllConfig ( HWND hParent )
 {
 	DebugWriteA("CALLED: DllConfig\n");
+#ifdef __GNUC__
+	ImportComCtlFuncs();
+#endif
 	static bool bInitCC = false;
 	if( !prepareHeap())
 		return;
@@ -226,7 +244,7 @@ EXPORT void CALL DllConfig ( HWND hParent )
 	}
 
 	if( g_pDIHandle && !g_bConfiguring )
-	{	
+	{
 		g_bConfiguring = true;
 		if( !bInitCC )
 		{
@@ -1220,6 +1238,10 @@ int WarningMessage( UINT uTextID, UINT uType )
 
 DWORD WINAPI MsgThreadFunction( LPVOID lpParam ) 
 {
+#ifdef __GNUC__
+	ImportGDIFuncs();
+#endif
+
 	HWND hMessage = CreateWindowEx( WS_EX_NOPARENTNOTIFY | WS_EX_STATICEDGE | WS_EX_TOPMOST, _T("STATIC"), NULL, WS_CHILD | WS_VISIBLE, 10, 10, 200, 40, g_strEmuInfo.hMainWindow, NULL, g_strEmuInfo.hinst, NULL );
 
 	/* prepare the screen to bitblt */
@@ -1266,3 +1288,43 @@ DWORD WINAPI DelayedShortcut(LPVOID lpParam)
 	P_free(lpParam);
 	return 0;
 }
+
+#if __GNUC__
+
+void ImportGDIFuncs()
+{
+	if (GDIFuncsImported)
+	{
+		return;
+	}
+	gdi32 = LoadLibrary(_T("gdi32.dll"));
+
+	MakeCompatibleDC		= (fCreateCompatibleDC)		GetProcAddress(gdi32, "CreateCompatibleDC");
+	MakeCompatibleBitmap	= (fCreateCompatibleBitmap)	GetProcAddress(gdi32, "CreateCompatibleBitmap");
+	DelDC					= (fDeleteDC)				GetProcAddress(gdi32, "DeleteDC");
+
+	SelObj					= (fSelectObject)			GetProcAddress(gdi32, "SelectObject");
+	DelObj					= (fDeleteObject)			GetProcAddress(gdi32, "DeleteObject");
+
+	BitBlockTransfer		= (fBitBlt)					GetProcAddress(gdi32, "BitBlt");
+
+	GDIFuncsImported = TRUE;
+}
+
+void ImportComCtlFuncs()
+{
+	if (ComCtlFuncsImported)
+	{
+		return;
+	}
+
+	comctl32 = LoadLibrary(_T("comctl32.dll"));
+	InitComCtlEx = (fInitCommonControlsEx)	GetProcAddress(comctl32, "InitCommonControlsEx");
+	ComCtlFuncsImported = TRUE;
+}
+
+#endif
+
+#ifdef __COMPILING_NRAGEPLUGINV2_C__
+#undef __COMPILING_NRAGEPLUGINV2_C__
+#endif

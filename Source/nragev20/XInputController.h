@@ -168,4 +168,42 @@ inline void FillN64AnalogComboBox( HWND hDlg, int ComboBox )
 void SaveXInputConfigToFile( FILE *file, LPXCONTROLLER gController );
 void LoadXInputConfigFromFile( FILE *file, LPXCONTROLLER gController );
 
+// Make mingw's linker happy
+#if defined(__GNUC__) && defined(__COMPILING_XINPUTCONTROLLER__)
+HMODULE ole32;
+HMODULE oleaut32;
+
+typedef HRESULT (*fCoInitialize)        (void*);
+typedef HRESULT (*fCoCreateInstance)    (CLSID, void*, int, CLSID, void*);
+typedef HRESULT (*fCoSetProxyBlanket)   (IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD);
+typedef void    (*fCoUninitialize)      ();
+
+typedef BSTR    (*fSysAllocString)      (OLECHAR*);
+typedef void    (*fSysFreeString)       (BSTR);
+typedef HRESULT (*fVariantClear)        (VARIANTARG*);
+
+fCoInitialize				CoInit;
+fCoCreateInstance			CoCreateInst;
+fCoSetProxyBlanket			CoSetPrxyBlnkt;
+fCoUninitialize				CoUninit;
+
+fSysAllocString				OLEmallocStr;
+fSysFreeString				OLEfreeStr;
+fVariantClear				VarClear;
+
+#define CoInitialize		CoInit
+#define CoCreateInstance	CoCreateInst
+#define CoSetProxyBlanket	CoSetPrxyBlnkt
+#define CoUninitialize		CoUninit
+
+#define SysAllocString		OLEmallocStr
+#define SysFreeString		OLEfreeStr
+#define VariantClear		VarClear
+
+bool COMFuncsImported = FALSE;
+
+void ImportCOMFuncs();
+
+#endif
+
 #endif //_XINPUTCONTROLLER_H

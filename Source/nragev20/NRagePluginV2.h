@@ -391,4 +391,51 @@ void freeModifiers( CONTROLLER *pcController );
 void CheckShortcuts();
 bool ErrorMessage( UINT uID, DWORD dwError, bool fUserChoose );
 
+// Make mingw's linker happy
+#if defined(__GNUC__) && defined (__COMPILING_NRAGEPLUGINV2_C__)
+
+HMODULE gdi32;
+HMODULE comctl32;
+
+typedef HDC		(*fCreateCompatibleDC)		(HDC);
+typedef HBITMAP	(*fCreateCompatibleBitmap)	(HDC, int, int);
+typedef BOOL	(*fDeleteDC)				(HDC);
+
+typedef HGDIOBJ	(*fSelectObject)			(HDC, HGDIOBJ);
+typedef BOOL	(*fDeleteObject)			(HGDIOBJ);
+
+typedef BOOL	(*fBitBlt)					(HDC, int, int, int, int, HDC, int, int, DWORD);
+
+typedef BOOL	(*fInitCommonControlsEx)	(LPINITCOMMONCONTROLSEX);
+
+fCreateCompatibleDC				MakeCompatibleDC;
+fCreateCompatibleBitmap			MakeCompatibleBitmap;
+fDeleteDC						DelDC;
+
+fSelectObject					SelObj;
+fDeleteObject					DelObj;
+
+fBitBlt							BitBlockTransfer;
+
+fInitCommonControlsEx			InitComCtlEx;
+
+#define CreateCompatibleDC		MakeCompatibleDC
+#define CreateCompatibleBitmap	MakeCompatibleBitmap
+#define DeleteDC				DelDC
+
+#define SelectObject			SelObj
+#define DeleteObject			DelObj
+
+#define BitBlt					BitBlockTransfer
+
+#define InitCommonControlsEx	InitComCtlEx
+
+bool GDIFuncsImported		= FALSE;
+bool ComCtlFuncsImported	= FALSE;
+
+void ImportGDIFuncs();
+void ImportComCtlFuncs();
+
+#endif
+
 #endif
