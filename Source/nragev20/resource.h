@@ -362,6 +362,14 @@
 #define IDC_XC_LTS                      1194
 #define IDC_XC_RTS                      1195
 #define IDC_N64MOUSE                    1196
+#define IDS_DLG_CPCHOOSE                1200
+#define IDS_DLG_CPSAVE                  1201
+#define IDS_DLG_MNCHOOSE                1202
+#define IDS_DLG_MNSAVE                  1203
+#define IDS_DLG_GBCHOOSE                1204
+#define IDS_DLG_GSCHOOSE                1205
+#define IDS_DLG_SCCHOOSE                1206
+#define IDS_DLG_SCSAVE                  1207
 
 // Next default values for new objects
 // 

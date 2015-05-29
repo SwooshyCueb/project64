@@ -767,6 +767,18 @@ BEGIN
     IDS_P_SWITCHING         "Switching paks..."
 END
 
+STRINGTABLE
+BEGIN
+    IDS_DLG_CPCHOOSE        "Choose a Controler Profile to load."
+    IDS_DLG_CPSAVE          "Choose a location to save the current Controller Profile."
+    IDS_DLG_MNCHOOSE        "Choose a MemPak Note to insert into the MemPak."
+    IDS_DLG_MNSAVE          "Choose a location to save the MemPak Note."
+    IDS_DLG_GBCHOOSE        "Choose a GameBoy ROM file for the Transfer Pak."
+    IDS_DLG_GSCHOOSE        "Choose a GameBoy save file for the Transfer Pak."
+    IDS_DLG_SCCHOOSE        "Choose a Shortcuts configuration file to load."
+    IDS_DLG_SCSAVE          "Choose a location to save the current Shortcuts configuration."
+END
+
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 

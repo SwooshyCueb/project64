@@ -1117,7 +1117,12 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 	// TODO: Proper title strings here
 	case BF_PROFILE:
 		LoadString( g_hResourceDLL, IDS_DLG_CPF, pszFilter, DEFAULT_BUFFER );
-		LoadString( g_hResourceDLL, IDS_M_CONFIG, pszTitle, DEFAULT_BUFFER );
+		if ( !fSave )
+		{
+			LoadString( g_hResourceDLL, IDS_DLG_CPCHOOSE, pszTitle, DEFAULT_BUFFER );
+		} else {
+			LoadString( g_hResourceDLL, IDS_DLG_CPSAVE, pszTitle, DEFAULT_BUFFER );
+		}
 		pszExt = _T("cpf");
 		nFilters = 1;
 		break;
@@ -1127,33 +1132,47 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 		{
 			LoadString( g_hResourceDLL, IDS_DLG_MPCHOOSE, pszTitle, DEFAULT_BUFFER );
 			dwFlags = OFN_HIDEREADONLY;
-		} else {
-			LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
 		}
 		pszExt = _T("mpk");
 		nFilters = 2;
 		break;
 	case BF_NOTE:
 		LoadString( g_hResourceDLL, IDS_DLG_A64, pszFilter, DEFAULT_BUFFER );
-		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
+		if ( !fSave )
+		{
+			LoadString( g_hResourceDLL, IDS_DLG_MNCHOOSE, pszTitle, DEFAULT_BUFFER );
+		} else {
+			LoadString( g_hResourceDLL, IDS_DLG_MNSAVE, pszTitle, DEFAULT_BUFFER );
+		}
 		pszExt = _T("a64");
 		nFilters = 1;
 		break;
 	case BF_GBROM:
 		LoadString( g_hResourceDLL, IDS_DLG_GBGBC, pszFilter, DEFAULT_BUFFER );
-		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
+		if ( !fSave )
+		{
+			LoadString( g_hResourceDLL, IDS_DLG_GBCHOOSE, pszTitle, DEFAULT_BUFFER );
+		}
 		pszExt = _T("gb");
 		nFilters = 1;
 		break;
 	case BF_GBSAVE:
 		LoadString( g_hResourceDLL, IDS_DLG_SVSAV, pszFilter, DEFAULT_BUFFER );
-		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
+		if ( !fSave )
+		{
+			LoadString( g_hResourceDLL, IDS_DLG_GSCHOOSE, pszTitle, DEFAULT_BUFFER );
+		}
 		pszExt = _T("sv");
 		nFilters = 1;
 		break;
 	case BF_SHORTCUTS:
 		LoadString( g_hResourceDLL, IDS_DLG_SC, pszFilter, DEFAULT_BUFFER );
-		LoadString( g_hResourceDLL, IDS_TAB_SHORTCUTS, pszTitle, DEFAULT_BUFFER );
+		if ( !fSave )
+		{
+			LoadString( g_hResourceDLL, IDS_DLG_SCCHOOSE, pszTitle, DEFAULT_BUFFER );
+		} else {
+			LoadString( g_hResourceDLL, IDS_DLG_SCSAVE, pszTitle, DEFAULT_BUFFER );
+		}
 		pszExt = _T("sc");
 		nFilters = 1;
 		break;
