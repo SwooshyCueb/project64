@@ -1114,8 +1114,10 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 
 	switch( dwType )
 	{
+	// TODO: Proper title strings here
 	case BF_PROFILE:
 		LoadString( g_hResourceDLL, IDS_DLG_CPF, pszFilter, DEFAULT_BUFFER );
+		LoadString( g_hResourceDLL, IDS_M_CONFIG, pszTitle, DEFAULT_BUFFER );
 		pszExt = _T("cpf");
 		nFilters = 1;
 		break;
@@ -1125,27 +1127,33 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 		{
 			LoadString( g_hResourceDLL, IDS_DLG_MPCHOOSE, pszTitle, DEFAULT_BUFFER );
 			dwFlags = OFN_HIDEREADONLY;
+		} else {
+			LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
 		}
 		pszExt = _T("mpk");
 		nFilters = 2;
 		break;
 	case BF_NOTE:
 		LoadString( g_hResourceDLL, IDS_DLG_A64, pszFilter, DEFAULT_BUFFER );
+		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
 		pszExt = _T("a64");
 		nFilters = 1;
 		break;
 	case BF_GBROM:
 		LoadString( g_hResourceDLL, IDS_DLG_GBGBC, pszFilter, DEFAULT_BUFFER );
+		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
 		pszExt = _T("gb");
 		nFilters = 1;
 		break;
 	case BF_GBSAVE:
 		LoadString( g_hResourceDLL, IDS_DLG_SVSAV, pszFilter, DEFAULT_BUFFER );
+		LoadString( g_hResourceDLL, IDS_P_MEMPAK, pszTitle, DEFAULT_BUFFER );
 		pszExt = _T("sv");
 		nFilters = 1;
 		break;
 	case BF_SHORTCUTS:
 		LoadString( g_hResourceDLL, IDS_DLG_SC, pszFilter, DEFAULT_BUFFER );
+		LoadString( g_hResourceDLL, IDS_TAB_SHORTCUTS, pszTitle, DEFAULT_BUFFER );
 		pszExt = _T("sc");
 		nFilters = 1;
 		break;
@@ -1710,13 +1718,13 @@ void ImportGetFNameFuncs()
 		return;
 	}
 
-	comctl32_2 = LoadLibrary(_T("comctl32.dll"));
+	comdlg32 = LoadLibrary(_T("comdlg32.dll"));
 #ifdef UNICODE
-	GetOpenFName = (fGetOpenFileName)GetProcAddress(comctl32_2, "GetOpenFileNameW");
-	GetSaveFName = (fGetSaveFileName)GetProcAddress(comctl32_2, "GetSaveFileNameW");
+	GetOpenFName = (fGetOpenFileName)GetProcAddress(comdlg32, "GetOpenFileNameW");
+	GetSaveFName = (fGetSaveFileName)GetProcAddress(comdlg32, "GetSaveFileNameW");
 #else
-	GetOpenFName = (fGetOpenFileName)GetProcAddress(comctl32_2, "GetOpenFileNameA");
-	GetSaveFName = (fGetSaveFileName)GetProcAddress(comctl32_2, "GetSaveFileNameA");
+	GetOpenFName = (fGetOpenFileName)GetProcAddress(comdlg32, "GetOpenFileNameA");
+	GetSaveFName = (fGetSaveFileName)GetProcAddress(comdlg32, "GetSaveFileNameA");
 #endif
 	GetFNameFuncsImported = TRUE;
 }

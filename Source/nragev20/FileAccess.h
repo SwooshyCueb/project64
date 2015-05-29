@@ -231,7 +231,7 @@ unsigned long djbHash(const char *str);
 
 // Make mingw's linker happy
 #if defined(__GNUC__) && defined(__COMPILING_FILEACCESS_C__)
-HMODULE comctl32_2;
+HMODULE comdlg32;
 
 typedef BOOL	(*fGetOpenFileName)			(LPOPENFILENAME);
 typedef BOOL	(*fGetSaveFileName)			(LPOPENFILENAME);
