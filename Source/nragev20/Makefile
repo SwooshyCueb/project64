@@ -1,45 +1,82 @@
 ## -*- Makefile -*-
+## mingw Makefile for NRage Project64 Input Plugin
+##
+## Build can be configured to a small amount with environment variables.
+## Set BUILD_ARCH to x86 for a 32 bit build or x86_64 for a 64 bit build.
+## If BUILD_ARCH is not set, we will attempt to detect the architecture.
+## Set BUILD_DEBUG to YES for a debug build. Anything else for a release build.
 
-ifeq ($(BUILD_ARCH),)
-BUILD_ARCH = x86
-endif
 
 #### Compiler and tool definitions shared by all build targets #####
 CC = gcc
 CXX = g++
 AR = ar
 WINDRES = windres
-BASICOPTS = -O3
 CXXFLAGS = $(BASICOPTS) -Wno-write-strings
 LDFLAGS = -static-libstdc++ -static-libgcc
 
 
-# Define the target directories.
-
-OBJDIR=obj
-BULDDIR=build
-DXLIBDIR32=../3rd\ Party/directx/lib
-DXLIBDIR64=../3rd\ Party/directx/lib64
+# Cfg
+ifeq ($(BUILD_ARCH),)
+GCC_ARCH = $(shell gcc -dumpmachine | sed s/-.*//)
 ifeq ($(BUILD_ARCH),x86_64)
-DXLIBDIR=$(DXLIBDIR64)
+BUILD_ARCH = x86_64
 else
-DXLIBDIR=$(DXLIBDIR32)
+BUILD_ARCH = x86
+endif
 endif
 
-all: $(BULDDIR)/PJ64_NRage.dll
+ifneq ($(BUILD_DEBUG),YES)
+BUILD_DEBUG = NO
+PLUGIN_FILE = PJ64_NRage.dll
+BASICOPTS = -O3
+else
+BUILD_DEBUG = YES
+PLUGIN_FILE = PJ64_NRage_d.dll
+BASICOPTS = -g -D_DEBUG
+endif
+
+# Define the target directories.
+#OBJDIR=obj
+#BUILDDIR=build
+DXLIBDIR32=../3rd\ Party/directx/lib
+DXLIBDIR64=../3rd\ Party/directx/lib64
+OBJDIR32=../../build/Release_mingw32/PJ64_NRage
+OBJDIR64=../../build/Release_mingw64/PJ64_NRage
+OBJDIR32DEBUG=../../build/Debug_mingw32/PJ64_NRage
+OBJDIR64DEBUG=../../build/Debug_mingw64/PJ64_NRage
+BUILDDIR32=../../Plugin/Input
+BUILDDIR64=../../Plugin64/Input
+ifeq ($(BUILD_ARCH),x86_64)
+DXLIBDIR=$(DXLIBDIR64)
+BUILDDIR=$(BUILDDIR64)
+ifeq ($(BUILD_DEBUG),YES)
+OBJDIR=$(OBJDIR64DEBUG)
+else
+OBJDIR=$(OBJDIR64)
+endif
+else
+DXLIBDIR=$(DXLIBDIR32)
+BUILDDIR=$(BUILDDIR32)
+ifeq ($(BUILD_DEBUG),YES)
+OBJDIR=$(OBJDIR32DEBUG)
+else
+OBJDIR=$(OBJDIR32)
+endif
+endif
+
+all: $(BUILDDIR)/$(PLUGIN_FILE)
 
 release: all
 
-debug: debugvar $(OBJDIR)/Debug.o all
+#debug: debugvar $(OBJDIR)/Debug.o $(BUILDDIR)/PJ64_NRage_d.dll
 
-debugvar:
-	$(eval BASICOPTS := -g -D_DEBUG)
-	$(eval DEBUGOBJS := $(OBJDIR)/Debug.o)
+#debugvar:
+#	$(eval BASICOPTS := -g -D_DEBUG)
 
 ## Target: PJ64_NRage.dll.exe
 OBJS =  \
 	$(OBJDIR)/mingw.o \
-	$(DEBUGOBJS) \
 	$(OBJDIR)/XInputController.o \
 	$(OBJDIR)/PakIO.o \
 	$(OBJDIR)/NRagePluginV2.o \
@@ -50,13 +87,19 @@ OBJS =  \
 	$(OBJDIR)/DirectInput.o \
 	$(OBJDIR)/resource.o \
 	$(OBJDIR)/dinput8.a
+
+DEBUGOBJS =	\
+	$(OBJDIR)/Debug.o
 #USERLIBS = $(SYSLIBS_SUAinst.exe) 
 #DEPLIBS =  
 #LDLIBS = $(USERLIBS_SUAinst.exe)
 
 # Link or archive
-$(BULDDIR)/PJ64_NRage.dll: $(BULDDIR) $(OBJDIR) $(OBJS) $(DEPLIBS)
+$(BUILDDIR)/PJ64_NRage.dll: $(BUILDDIR) $(OBJDIR) $(OBJS) $(DEPLIBS)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(OBJS) $(LDLIBS) $(LDFLAGS)
+
+$(BUILDDIR)/PJ64_NRage_d.dll: $(BUILDDIR) $(DEBUGOBJS) $(OBJDIR) $(OBJS) $(DEPLIBS)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(DEBUGOBJS) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
 
 # Compile source files into .o files
@@ -126,16 +169,16 @@ $(OBJDIR)/dinput8.a: $(OBJDIR)/dinput8/mouse.o $(OBJDIR)/dinput8/mouse2.o $(OBJD
 #### Clean target deletes all generated files ####
 clean:
 	rm -f \
-		$(BULDDIR)/PJ64_NRage.dll \
+		$(BUILDDIR)/$(PLUGIN_FILE) \
 		$(OBJS)
 	rm -f -r \
-		$(BULDDIR) \
+		$(BUILDDIR) \
 		$(OBJDIR)
 
 
 # Create the target directory (if needed)
-$(BULDDIR):
-	mkdir -p $(BULDDIR)
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
