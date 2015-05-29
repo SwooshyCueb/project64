@@ -29,10 +29,12 @@ endif
 ifneq ($(BUILD_DEBUG),YES)
 BUILD_DEBUG = NO
 PLUGIN_FILE = PJ64_NRage_m.dll
+RESFLAGS =
 BASICOPTS = -O3
 else
 BUILD_DEBUG = YES
 PLUGIN_FILE = PJ64_NRage_md.dll
+RESFLAGS = -D_DEBUG
 BASICOPTS = -g -D_DEBUG
 endif
 
@@ -90,9 +92,6 @@ OBJS =  \
 
 DEBUGOBJS =	\
 	$(OBJDIR)/Debug.o
-#USERLIBS = $(SYSLIBS_SUAinst.exe) 
-#DEPLIBS =  
-#LDLIBS = $(USERLIBS_SUAinst.exe)
 
 # Link or archive
 $(BUILDDIR)/PJ64_NRage_m.dll: $(BUILDDIR) $(OBJDIR) $(OBJS) $(DEPLIBS)
@@ -135,7 +134,7 @@ $(OBJDIR)/Debug.o: $(OBJDIR) Debug.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ -c Debug.cpp
 
 $(OBJDIR)/resource.o: $(OBJDIR) NRagePluginV2.rc
-	$(WINDRES) NRagePluginV2.rc $@
+	$(WINDRES) $(RESFLAGS) NRagePluginV2.rc $@
 
 
 # dinput8 stuff
