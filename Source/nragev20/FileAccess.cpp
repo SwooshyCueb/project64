@@ -1114,7 +1114,6 @@ bool BrowseFile( HWND hDlg, TCHAR *pszFileName, DWORD dwType, bool fSave )
 
 	switch( dwType )
 	{
-	// TODO: Proper title strings here
 	case BF_PROFILE:
 		LoadString( g_hResourceDLL, IDS_DLG_CPF, pszFilter, DEFAULT_BUFFER );
 		if ( !fSave )
