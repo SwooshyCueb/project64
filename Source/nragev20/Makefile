@@ -28,11 +28,11 @@ endif
 
 ifneq ($(BUILD_DEBUG),YES)
 BUILD_DEBUG = NO
-PLUGIN_FILE = PJ64_NRage.dll
+PLUGIN_FILE = PJ64_NRage_m.dll
 BASICOPTS = -O3
 else
 BUILD_DEBUG = YES
-PLUGIN_FILE = PJ64_NRage_d.dll
+PLUGIN_FILE = PJ64_NRage_md.dll
 BASICOPTS = -g -D_DEBUG
 endif
 
@@ -74,7 +74,7 @@ release: all
 #debugvar:
 #	$(eval BASICOPTS := -g -D_DEBUG)
 
-## Target: PJ64_NRage.dll.exe
+## Target: PJ64_NRage_m.dll
 OBJS =  \
 	$(OBJDIR)/mingw.o \
 	$(OBJDIR)/XInputController.o \
@@ -95,10 +95,10 @@ DEBUGOBJS =	\
 #LDLIBS = $(USERLIBS_SUAinst.exe)
 
 # Link or archive
-$(BUILDDIR)/PJ64_NRage.dll: $(BUILDDIR) $(OBJDIR) $(OBJS) $(DEPLIBS)
+$(BUILDDIR)/PJ64_NRage_m.dll: $(BUILDDIR) $(OBJDIR) $(OBJS) $(DEPLIBS)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(OBJS) $(LDLIBS) $(LDFLAGS)
 
-$(BUILDDIR)/PJ64_NRage_d.dll: $(BUILDDIR) $(DEBUGOBJS) $(OBJDIR) $(OBJS) $(DEPLIBS)
+$(BUILDDIR)/PJ64_NRage_md.dll: $(BUILDDIR) $(DEBUGOBJS) $(OBJDIR) $(OBJS) $(DEPLIBS)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(DEBUGOBJS) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
 
